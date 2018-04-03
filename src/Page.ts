@@ -34,7 +34,6 @@ export class Page {
     setCursor(cursor) {
         console.log(cursor)
         this.cursor = cursor;
-        console.log(this.cursor)
         if( this.cursor.h > this.lastCursor.h) { this.lastCursor = this.cursor }
     }
 
