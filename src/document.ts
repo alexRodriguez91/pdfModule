@@ -1,64 +1,113 @@
+import { Page } from './Page';
+import * as jsPDF from 'jsPDF';
+import { ModulePDF } from './module';
+import { Header } from './header';
 
-interface PageData {
-    numPage?: number;
-    cursor: {x: number, y: number};
-    size: number;
-    canReturn: boolean;
+export interface Coord {
+    h: number; w: number;
+}
+export class setPage {
+    constructor (private Pdf) {} 
+    style(style: string = 'normal', color: string = '#000000') {
+        this.Pdf.setTextColor(color);
+        this.Pdf.setFontStyle(style);
+        return this;
+    }
 }
 
-export class DocPDF {
+export class Document extends setPage {
+
+    private pages: Page[] = [];
+    currentPage: Page;
+    
+    private modules: ModulePDF[] = [];
+    currentModule: ModulePDF;
+
+    widthContent;
+    private margin: Coord = {h: 10, w: 15};
+    private size: Coord;
+
+    constructor(private pdf: jsPDF, config = null) {
+        super(pdf)
+        this.pdf.setFontSize(12);
+        this.widthContent = 180;
+        this.addPage();
+    }
+
+    writeText(text) {
+        let cursor = this.currentModule.writeText(text);
+        this.currentPage.setCursor(cursor);
+        this.style();
+    }
+
+    addPage() {
+        
+        const temp_Page = new Page({w: this.margin.w ,h:this.margin.h + 10}, this.widthContent);
+        temp_Page.header= new Header(this.pdf, {w:270, h: 20});
+        this.currentPage = temp_Page;
+        this.pdf.setFillColor(231,232,234);
+        this.pdf.rect(this.margin.w, this.margin.h * 2, this.widthContent, 220, 'F')
 
 
-    sizepageX: number;
-    sizepageY: number;
-    numPages: number = 0;
-    currentPage: number = 0;
-    pagePosition: PageData[] = [];
-    constructor(private pdf: any) {}
+        this.pages.push(temp_Page);
+    }
 
+    
+    getPage(pageNum = 0) {
+        const found = this.pages.find(page => +page.numPage === +pageNum);
+        return !!found ? found : ({err: 'error'});
+    }
+    
+    updatePage(pageNum: Page = this.currentPage) {
+        const i = this.pages.findIndex(st => st.numPage == pageNum.numPage);
+        if (i) { this.pages[i] = pageNum; }
+        return this.pages[i];
+    }
+
+    prevPage() {
+        const p = this.getPage(this.currentPage.numPage - 1);
+        return p ? p : this.currentPage;
+    }
     nextPage() {
-        if (this.currentPage < this.numPages) {
-            this.currentPage++;
-            this.pdf.setPage(this.currentPage);
-        }
-        return this.getCurrentPosition()
+        const n = this.getPage(this.currentPage.numPage + 1);
+        return n ? n : this.currentPage;
     }
 
-    getCurrentPosition(): PageData {
-        console.log(this.pagePosition)
-        return this.pagePosition.find(page => page.numPage == this.currentPage);
+    addModule(title) {
+        const temp_Module = new ModulePDF(this.pdf, this.currentPage, title);
+        this.modules.push(temp_Module);
+        this.currentModule = temp_Module;
     }
 
-    prevPage () {
-        if (this.currentPage > 0) {
-            this.currentPage--;
-            this.pdf.setPage(this.currentPage);
-        }
-        return this.getCurrentPosition();
+    
+    getModule(moduleNum = 0) {
+        const found = this.modules.find(module => +module.numModule === +moduleNum);
+        return !!found ? found : ({err: 'error'});
+    }
+    
+    updateModule(moduleNum: ModulePDF = this.currentModule) {
+        const i = this.modules.findIndex(st => st.numModule == moduleNum.numModule);
+        if (i) { this.modules[i] = moduleNum; }
+        return this.modules[i];
     }
 
-    addPage(data: PageData): PageData {
-        this.pdf.addPage();
-        this.pagePosition.push({
-            cursor: data.cursor,
-            size: data.size,
-            canReturn: data.canReturn,
-            numPage: this.numPages
+    prevModule() {
+        const p = this.getModule(this.currentModule.numModule - 1);
+        return p ? p : this.currentModule;
+    }
+    nextModule() {
+        const n = this.getModule(this.currentModule.numModule + 1);
+        return n ? n : this.currentModule;
+    }
+
+    save(title) {
+        this.modules.map((module: ModulePDF) => {
+            module.createBox();
+        });
+        this.pages.map(page => {
+            page.header.draw();
         })
-        this.numPages += 1;
-        this.currentPage = this.numPages
-        return this.getCurrentPosition();
+        this.currentModule.lastBox();
+        this.pdf.save(title);
     }
-
-    updatePage(page: number = this.currentPage, state: PageData) {
-        const i = this.pagePosition.findIndex(st => st.numPage == page);
-        if (i) {
-            this.pagePosition[i] = state;
-        }
-        return this.pagePosition[i];
-    }
-
-    isLast() {
-        return this.currentPage == this.numPages;
-    }
-  }
+}
