@@ -9,8 +9,8 @@ export class ModulePDF {
     private top: number;
     private cursor: Coord;
     height;
-    private hContent = 0;
-    private wContent = 0;
+    hContent = 0;
+    wContent = 0;
     config = {
         
         textHeight : 12,
@@ -21,7 +21,7 @@ export class ModulePDF {
     }
 
 
-    constructor(private pdf: jsPDF, page: Page, title, sub= false) {
+    constructor(private pdf: jsPDF, page: Page, title, num, sub= false) {
         this.title = title;
         this.top = page.lastCursor.h + this.config.margin.h;
         this.cursor = page.getCursor();
@@ -30,6 +30,7 @@ export class ModulePDF {
         this.wContent = page.wContent;
         this.config.margin.w = page.margin.w;
         this.subModule = sub;
+        this.numModule = num;
     }
 
     createBox() {
@@ -44,8 +45,8 @@ export class ModulePDF {
         // titulo
         this.setTxtStyle('#333', 14);
         this.pdf.text(this.title,
-                    this.config.margin.w + this.config.padding.w,
-                    this.top + (this.config.textHeight / 2)
+                    this.config.margin.w + Math.round(this.config.padding.w / 2),
+                    this.top + Math.round(this.config.textHeight / 2)
         );
     
 
@@ -60,7 +61,7 @@ export class ModulePDF {
     }
     lastBox() {
         let height = this.top + this.height + this.config.paddLine;
-        let bottom = 270 - height
+        let bottom = 270 - height;
         this.pdf.setFillColor(255, 255, 255);
         this.pdf.rect(this.config.margin.w, height, this.wContent, bottom, 'F');
         

@@ -26,7 +26,7 @@ export class Page {
 
     getCursor() {
         return this.cursor;
-    }
+    }           
     // writeText(text) {
 
     // }

@@ -17,15 +17,18 @@ let main = (event) => {
     docPDF.addModule('primer Modulo')
         docPDF.style('bold').writeText('Hola');
         docPDF.writeText('Hola una vez mas ');
-        docPDF.writeText('Hola otra mas');
-        docPDF.writeText('Hola una vez Hola una vez mas ');
-        docPDF.writeText('Hola otra mas Hola una vez Hola una vez');
-        docPDF.writeText('Hola una vez mas  vez mas  vez mas  vez mas ');
-        docPDF.writeText('Hola otra mas');
-        docPDF.writeText('Hola una vez una vez mas ');
-        docPDF.writeText('Hola otra mas');
-        docPDF.writeText('Hola otra mas una vez una vez');
-        docPDF.writeText('una vez Hola una vez mas ');
+        docPDF.writeText('Hola otra mas')
+            .writeText('Hola una vez Hola una vez mas ')
+            .writeText('Hola otra mas Hola una vez Hola una vez')
+            .writeText('Hola una vez mas  vez mas  vez mas  vez mas ')
+            .writeText('Hola otra mas')
+            .writeText('Hola una vez una vez mas ')
+            .writeText('Hola otra mas')
+            .writeText('Hola otra mas una vez una vez')
+            .writeText('una vez Hola una vez mas ');
+    docPDF.startRow(4);
+    docPDF.col(2).writeText('Hola otra mas');
+    docPDF.endRow();        
     
     docPDF.addModule('Segundo Modulo')
         docPDF.style('bold').writeText('Hola');

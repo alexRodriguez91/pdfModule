@@ -56,7 +56,7 @@ export class Document extends setPage {
         if (cursor) {
             if(cursor.h > this.sizePage.h) {
                 console.log('    whaaa   .')
-                this.currentPage = this.nextPage();
+                this.nextPage();
                 this.currentModule = this.nextModule();
             } else {
                 this.currentPage.setCursor(cursor);
@@ -85,9 +85,8 @@ export class Document extends setPage {
         temp_Page.header = new Header(this.pdf, {w:270, h: 20});
         this.currentPage = temp_Page;
         this.pdf.setFillColor(231,232,234);
-        this.pdf.rect(this.margin.w, (this.margin.h * 2) + 10, this.widthContent, 220, 'F')
+        this.pdf.rect(this.margin.w, (this.margin.h * 2) + 10, this.widthContent, 250, 'F')
         this.pages.push(temp_Page);
-        console.log(this.pages)
         if (!n) { this.pdf.addPage(); }
         return temp_Page;
     }
@@ -110,13 +109,20 @@ export class Document extends setPage {
 
     nextPage() {
         const n = this.getPage(this.currentPage.numPage + 1);
-        return n ? n : this.addPage();
+        if (n){
+            this.currentPage = n;
+            return n;
+        } else { 
+            return this.addPage();
+        }
     }
 
     addModule(title = '', sub = false) {
-        const temp_Module = new ModulePDF(this.pdf, this.currentPage, title, sub);
+        const num = this.modules.reduce((prev, next) => prev.numModule > next.numModule ? prev : next, {numModule:0})
+        const temp_Module = new ModulePDF(this.pdf, this.currentPage, title, num.numModule, sub);
         this.modules.push(temp_Module);
         this.currentModule = temp_Module;
+        
         return temp_Module;
     }
 
@@ -141,6 +147,23 @@ export class Document extends setPage {
         const n = this.getModule(this.currentModule.numModule + 1);
         return n ? n : this.addModule(null, true);
     }
+
+    // rows
+    numRows = 1;
+    rowWidth;
+    startRow(num = 2) {
+        this.numRows = num;
+        this.rowWidth = this.currentModule.wContent - this.margin.w * (num + 1)
+    }
+    
+    endRow() {
+        this.numRows = 1
+    }
+
+    col(num) {
+            return this
+    }
+
 
     save(title) {
         this.modules.map((module: ModulePDF) => {
