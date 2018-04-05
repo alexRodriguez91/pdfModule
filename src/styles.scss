@@ -1,8 +1,28 @@
 body {
-    background-color: #333;
-    button {
+    background-color: #ededed;
+    // display: inline-block;
+    position: relative;
+    padding: 100px;
+
+    div {
+        font-family: 'Helvetica';
+        text-align: center;
+        width: 200px;
+        display: block;
         background-image: none;
         background-color: #fff;
-        border: none;
+        padding: 15px 10px;
+        font-weight: bold;
+        color: #333;
+        border: 1px solid #ddd;
+        margin: auto;
+        &:hover {
+            cursor: pointer;
+            background-color: #f9f9fd;
+            box-shadow: 0 1px 1px rgba(#888, .3);
+        }
+        &:focus {
+            background-color: #99e;
+        }
     }
 }
